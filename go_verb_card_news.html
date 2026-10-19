@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Go 기본동사 카드뉴스</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1e1b4b 0%, #4c1d95 40%, #7c3aed 100%);
+        }
+        .card-shadow {
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+        .slide-enter {
+            opacity: 0;
+            transform: scale(0.95) translateY(12px);
+        }
+        .slide-enter-active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .custom-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4 select-none">
+
+    <!-- App Header -->
+    <header class="text-center mb-5 text-white">
+        <div class="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/15 shadow-inner mb-2">
+            <span class="w-2 h-2 rounded-full bg-violet-400 animate-pulse"></span>
+            <span class="text-xs font-semibold uppercase tracking-wider text-violet-200">English Verb Master Series</span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-black tracking-tight">기본동사 <span class="text-amber-300 underline decoration-amber-400/60 underline-offset-4">'GO'</span> 완벽 정리</h1>
+        <p class="text-white/70 text-xs sm:text-sm mt-1">가다, 상태 변하다, 작동/진행되다, 어울리다 - 핵심 7분 정복</p>
+    </header>
+
+    <!-- Main Card Container -->
+    <main class="w-full max-w-md bg-white rounded-3xl card-shadow overflow-hidden flex flex-col relative transition-all duration-300 min-h-[540px]">
+        
+        <!-- Top Navigation Bar & Progress Bar -->
+        <div class="px-6 pt-5 pb-3 flex items-center justify-between border-b border-gray-100 bg-white">
+            <div class="flex space-x-1.5 w-3/4" id="progress-bars">
+                <!-- Injected via JavaScript -->
+            </div>
+            <span id="slide-counter" class="text-xs font-black text-violet-600 bg-violet-50 px-2.5 py-1 rounded-full">1 / 7</span>
+        </div>
+
+        <!-- Slide Body Container -->
+        <div id="card-content" class="p-6 sm:p-7 flex-1 flex flex-col justify-between min-h-[440px] transition-all duration-300">
+            <!-- Dynamic Content Injected via JS -->
+        </div>
+
+        <!-- Bottom Navigation Controls -->
+        <div class="px-6 py-4 bg-gray-50 flex items-center justify-between border-t border-gray-100">
+            <button id="prev-btn" onclick="prevSlide()" class="flex items-center space-x-1 px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-gray-700 font-semibold text-xs sm:text-sm hover:bg-gray-100 active:scale-95 transition disabled:opacity-30 disabled:cursor-not-allowed disabled:active:scale-100 shadow-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
+                <span>이전</span>
+            </button>
+
+            <span id="card-tag" class="text-xs font-bold text-violet-600 bg-violet-100/80 px-3 py-1 rounded-full">Intro</span>
+
+            <button id="next-btn" onclick="nextSlide()" class="flex items-center space-x-1 px-5 py-2.5 rounded-xl bg-violet-600 text-white font-semibold text-xs sm:text-sm hover:bg-violet-700 active:scale-95 transition shadow-md shadow-violet-200">
+                <span id="next-btn-text">다음</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+            </button>
+        </div>
+    </main>
+
+    <!-- Footer Information -->
+    <footer class="mt-5 text-center text-white/60 text-xs">
+        💡 <span class="font-medium">Tip:</span> 키보드 방향키(← / →)를 사용하여 카드뉴스를 넘길 수 있습니다.
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Slide Data Configuration
+        const slides = [
+            {
+                type: "cover",
+                badge: "Card 1",
+                title: "기본동사 'GO'\n완벽 정리 🚀",
+                subtitle: "'가다'만 알고 있다면 30%만 아는 것!<br><span class='text-violet-600 font-bold'>'GO'</span>는 이동, 상태 변화, 진행/작동, 어울림까지 확장되는 대표 원어민 필수 동사입니다.",
+                keywords: [
+                    { icon: "🚶", text: "이동하다 (Go to / ing)" },
+                    { icon: "🔄", text: "상태 변하다 (Go + Adj)" },
+                    { icon: "⚙️", text: "진행/작동 (How's it going?)" },
+                    { icon: "🎨", text: "어울리다 (Go with)" }
+                ],
+                tip: "GO의 핵심 이미지: 중심에서 멀어져 '어떤 방향이나 상태로 나아가고 변화하는 것'입니다!"
+            },
+            {
+                type: "usage",
+                number: 1,
+                title: "~로 가다 / 이동하다",
+                subtitle: "Go to + 장소 / Go + -ing / Go on + 명사",
+                badge: "Card 2",
+                emoji: "🚶",
+                bgColor: "bg-violet-50 text-violet-600",
+                sentences: [
+                    { en: "I go to work by bus every morning.", ko: "나는 매일 아침 버스를 타고 출근합니다.", ipa: "[아이 고 투 워크 바이 버스 에브리 모닝]" },
+                    { en: "Let's go shopping this weekend.", ko: "이번 주말에 쇼핑하러 가요.", ipa: "[렛츠 고 쇼핑 디스 위크엔드]" },
+                    { en: "We are going on a trip to Jeju.", ko: "우리는 제주도로 여행을 갑니다.", ipa: "[위 아 고잉 온 어 트립 투 제주]" }
+                ],
+                tip: "Go home, Go downtown처럼 home, downtown 앞에는 전치사 to를 쓰지 않습니다!"
+            },
+            {
+                type: "usage",
+                number: 2,
+                title: "~한 상태가 되다 (변화)",
+                subtitle: "Go + 형용사 (주로 안 좋은 상태로 변할 때 사용)",
+                badge: "Card 3",
+                emoji: "🔄",
+                bgColor: "bg-purple-50 text-purple-600",
+                sentences: [
+                    { en: "The milk went bad because of the heat.", ko: "더위 때문에 우유가 상했습니다.", ipa: "[더 밀크 웬트 배드 비코즈 오브 더 히트]" },
+                    { en: "Everything went wrong yesterday.", ko: "어제는 모든 일이 잘못되어 갔어요.", ipa: "[에브리씽 웬트 롱 예스터데이]" },
+                    { en: "Don't scream, I'm not going crazy!", ko: "소리지르지 마, 나 미치지 않았어!", ipa: "[돈 스크림, 아임 낫 고잉 크레이지]" }
+                ],
+                tip: "go bad(상하다), go wrong(잘못되다), go blind(눈이 멀다) 등 악화되는 변화에 자주 씁니다."
+            },
+            {
+                type: "usage",
+                number: 3,
+                title: "작동하다 / 진행되다",
+                subtitle: "How is it going? / Go well / Go smoothly",
+                badge: "Card 4",
+                emoji: "⚙️",
+                bgColor: "bg-fuchsia-50 text-fuchsia-600",
+                sentences: [
+                    { en: "How is your project going?", ko: "프로젝트는 어떻게 돼 가고 있나요?", ipa: "[하우 이즈 유어 프로젝트 고잉?]" },
+                    { en: "The interview went really well.", ko: "면접이 정말 잘 진행되었습니다.", ipa: "[디 인터뷰 웬트 리얼리 웨얼]" },
+                    { en: "Everything is going smoothly so far.", ko: "지금까지는 모든 것이 순조롭게 진행되고 있어요.", ipa: "[에브리씽 이즈 고잉 스무스리 소 파]" }
+                ],
+                tip: "'How's it going?'은 '어떻게 지내/일이 어떻게 돼 가?'라는 대중적인 인사말입니다."
+            },
+            {
+                type: "usage",
+                number: 4,
+                title: "어울리다 / 매치되다",
+                subtitle: "Go with / Go well with (~와 잘 어울리다)",
+                badge: "Card 5",
+                emoji: "🎨",
+                bgColor: "bg-indigo-50 text-indigo-600",
+                sentences: [
+                    { en: "This tie goes well with your jacket.", ko: "이 넥타이는 당신의 재킷과 아주 잘 어울려요.", ipa: "[디스 타이 고즈 웨얼 위드 유어 재킷]" },
+                    { en: "Does wine go with spicy food?", ko: "와인이 매운 음식과 잘 어울리나요?", ipa: "[더즈 와인 고 위드 스파이시 푸드?]" },
+                    { en: "Red and white go well together.", ko: "빨간색과 흰색은 서로 잘 어울립니다.", ipa: "[레드 앤 화이트 고 웨얼 투게더]" }
+                ],
+                tip: "옷, 색상, 음식 등의 궁합이 조화롭게 잘 어울릴 때 'Go with'를 씁니다."
+            },
+            {
+                type: "collocation",
+                badge: "Card 6",
+                title: "필수 구동사 & 관용 표현 (Phrasal Verbs)",
+                subtitle: "원어민 회화 필수 GO 관련 핵심 숙어",
+                bgColor: "bg-violet-50 text-violet-600",
+                phrases: [
+                    { en: "Go on", ko: "계속되다 / (일이) 일어나다", ex: "Please go on, I'm listening." },
+                    { en: "Go over", ko: "검토하다 / 꼼꼼히 살피다", ex: "Let's go over the contract details." },
+                    { en: "Go off", ko: "(알람이) 울리다 / (폭탄이) 터지다", ex: "My alarm went off at 6 AM." },
+                    { en: "Go through", ko: "(어려움·시련을) 겪다 / 경험하다", ex: "She went through a tough time." },
+                    { en: "Go out", ko: "외출하다 / (불이) 꺼지다", ex: "The lights suddenly went out." },
+                    { en: "Go by", ko: "(시간이) 지나가다 / 흐르다", ex: "Time goes by so fast." }
+                ],
+                tip: "Go over(검토하다)와 Go through(겪다/통과하다)는 일상 및 비즈니스에서 아주 많이 쓰입니다!"
+            },
+            {
+                type: "quiz",
+                badge: "Card 7",
+                title: "학습 완료 & 복습 퀴즈 🎓",
+                subtitle: "빈칸에 들어갈 가장 알맞은 표현을 맞춰보세요!",
+                questions: [
+                    { q: "더위 때문에 우유가 상했어요. -> The milk ____ bad.", options: ["went", "made", "took"], answer: 0 },
+                    { q: "이 넥타이는 바지와 잘 어울려요. -> This tie ____ with these pants.", options: ["comes", "goes", "runs"], answer: 1 },
+                    { q: "계약서를 함께 검토해 봅시다. -> Let's ____ over the contract.", options: ["go", "get", "put"], answer: 0 }
+                ]
+            }
+        ];
+
+        let currentSlide = 0;
+        const totalSlides = slides.length;
+        let quizState = {};
+
+        // DOM Elements Selection
+        const cardContent = document.getElementById('card-content');
+        const slideCounter = document.getElementById('slide-counter');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const nextBtnText = document.getElementById('next-btn-text');
+        const cardTag = document.getElementById('card-tag');
+        const progressBars = document.getElementById('progress-bars');
+
+        // Render progress bar indicators
+        function initProgressBars() {
+            progressBars.innerHTML = '';
+            for (let i = 0; i < totalSlides; i++) {
+                const bar = document.createElement('div');
+                bar.className = `h-1.5 flex-1 rounded-full transition-all duration-300 ${i <= currentSlide ? 'bg-violet-600' : 'bg-gray-200'}`;
+                progressBars.appendChild(bar);
+            }
+        }
+
+        // Render function for slide content
+        function renderSlide() {
+            const slide = slides[currentSlide];
+
+            slideCounter.textContent = `${currentSlide + 1} / ${totalSlides}`;
+            cardTag.textContent = slide.badge;
+            initProgressBars();
+
+            prevBtn.disabled = currentSlide === 0;
+
+            if (currentSlide === totalSlides - 1) {
+                nextBtnText.textContent = "처음으로";
+            } else {
+                nextBtnText.textContent = "다음";
+            }
+
+            cardContent.className = "p-6 sm:p-7 flex-1 flex flex-col justify-between slide-enter";
+
+            let innerHtml = "";
+
+            if (slide.type === "cover") {
+                innerHtml = `
+                    <div class="flex flex-col justify-between h-full">
+                        <div>
+                            <div class="inline-flex items-center space-x-1.5 bg-violet-50 border border-violet-100 text-violet-700 font-extrabold text-xs px-3 py-1 rounded-full mb-3">
+                                <span>🚀</span>
+                                <span>Essential Verb Card News</span>
+                            </div>
+                            <h2 class="text-2xl sm:text-3xl font-black text-gray-900 leading-tight whitespace-pre-line mb-2">${slide.title}</h2>
+                            <p class="text-gray-600 text-xs sm:text-sm leading-relaxed mb-4">${slide.subtitle}</p>
+
+                            <!-- Key Theme Grid -->
+                            <div class="grid grid-cols-2 gap-2.5 my-2">
+                                ${slide.keywords.map(kw => `
+                                    <div class="bg-gray-50 border border-gray-100 p-2.5 rounded-2xl flex items-center space-x-2 shadow-sm">
+                                        <span class="text-lg">${kw.icon}</span>
+                                        <span class="text-xs font-bold text-gray-800">${kw.text}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <!-- Bottom Tip -->
+                        <div class="bg-violet-50/80 border border-violet-100 rounded-2xl p-3.5 flex items-start space-x-2.5 mt-4">
+                            <span class="text-base">💡</span>
+                            <p class="text-violet-950 text-xs leading-relaxed font-medium">${slide.tip}</p>
+                        </div>
+                    </div>
+                `;
+            } else if (slide.type === "usage") {
+                const sentencesHtml = slide.sentences.map(item => `
+                    <div class="bg-gray-50 p-3.5 rounded-2xl border border-gray-100 hover:border-violet-200 transition">
+                        <div class="flex items-center justify-between">
+                            <p class="text-gray-900 font-bold text-sm sm:text-base leading-snug">
+                                ${highlightTarget(item.en)}
+                            </p>
+                            <div class="flex items-center space-x-1 ml-2">
+                                <button onclick="speakText('${escapeQuotes(item.en)}')" class="text-violet-500 hover:text-violet-700 hover:bg-violet-50 p-1.5 rounded-lg transition" title="발음 듣기">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
+                                </button>
+                                <button onclick="copyToClipboard('${escapeQuotes(item.en)}')" class="text-gray-400 hover:text-gray-600 hover:bg-gray-200/60 p-1.5 rounded-lg transition" title="문장 복사">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-xs sm:text-sm mt-1 font-medium">${item.ko}</p>
+                        ${item.ipa ? `<p class="text-violet-600/80 text-[11px] font-sans mt-0.5">${item.ipa}</p>` : ''}
+                    </div>
+                `).join('');
+
+                innerHtml = `
+                    <div class="flex flex-col justify-between h-full">
+                        <div>
+                            <div class="flex items-center space-x-3 mb-2.5">
+                                <span class="text-3xl p-2.5 rounded-2xl ${slide.bgColor} shadow-sm">${slide.emoji}</span>
+                                <div>
+                                    <span class="text-xs font-bold uppercase tracking-wider text-violet-500">Meaning 0${slide.number}</span>
+                                    <h2 class="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">${slide.title}</h2>
+                                </div>
+                            </div>
+                            <p class="text-gray-600 text-xs sm:text-sm mb-3.5 font-medium leading-relaxed">${slide.subtitle}</p>
+
+                            <div class="space-y-2.5 mb-3">
+                                ${sentencesHtml}
+                            </div>
+                        </div>
+
+                        <div class="bg-violet-50/80 border border-violet-100 rounded-2xl p-3.5 flex items-start space-x-2.5">
+                            <span class="text-base">💡</span>
+                            <div>
+                                <h4 class="text-xs font-bold text-violet-900 uppercase tracking-wide">학습 포인트</h4>
+                                <p class="text-violet-900 text-xs mt-0.5 leading-relaxed font-medium">${slide.tip}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (slide.type === "collocation") {
+                const phrasesHtml = slide.phrases.map(item => `
+                    <div class="bg-gray-50 p-2.5 rounded-xl border border-gray-100 flex flex-col justify-center">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-violet-700 text-xs sm:text-sm">${item.en}</span>
+                            <button onclick="speakText('${escapeQuotes(item.ex)}')" class="text-violet-500 hover:text-violet-700 p-1 rounded transition" title="예문 발음 듣기">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
+                            </button>
+                        </div>
+                        <div class="text-gray-800 font-semibold text-xs mt-0.5">${item.ko}</div>
+                        <div class="text-gray-400 text-[11px] italic mt-0.5 font-sans">ex) ${item.ex}</div>
+                    </div>
+                `).join('');
+
+                innerHtml = `
+                    <div class="flex flex-col justify-between h-full">
+                        <div>
+                            <div class="flex items-center space-x-2.5 mb-2">
+                                <span class="text-2xl p-2 rounded-2xl bg-violet-50 text-violet-600">🔥</span>
+                                <div>
+                                    <h2 class="text-xl font-black text-gray-900">${slide.title}</h2>
+                                    <p class="text-gray-500 text-xs font-medium">${slide.subtitle}</p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2 my-2.5 max-h-[250px] overflow-y-auto pr-1 custom-scroll">
+                                ${phrasesHtml}
+                            </div>
+                        </div>
+
+                        <div class="bg-violet-50/80 border border-violet-100 rounded-2xl p-3 flex items-start space-x-2">
+                            <span class="text-sm">📌</span>
+                            <p class="text-violet-900 text-xs font-medium leading-relaxed">${slide.tip}</p>
+                        </div>
+                    </div>
+                `;
+            } else if (slide.type === "quiz") {
+                const quizHtml = slide.questions.map((q, qIdx) => `
+                    <div class="bg-gray-50 p-3 rounded-2xl border border-gray-100 text-xs">
+                        <p class="font-bold text-gray-800 mb-2">${qIdx + 1}. ${q.q}</p>
+                        <div class="grid grid-cols-3 gap-1.5">
+                            ${q.options.map((opt, optIdx) => {
+                                const isSelected = quizState[qIdx] === optIdx;
+                                const isCorrect = q.answer === optIdx;
+                                let btnStyle = "bg-white border-gray-200 text-gray-700 hover:bg-gray-100";
+                                
+                                if (quizState[qIdx] !== undefined) {
+                                    if (isSelected) {
+                                        btnStyle = isCorrect ? "bg-emerald-500 text-white border-emerald-500 font-bold" : "bg-rose-500 text-white border-rose-500 font-bold";
+                                    } else if (isCorrect) {
+                                        btnStyle = "bg-emerald-100 text-emerald-800 border-emerald-300 font-bold";
+                                    }
+                                }
+
+                                return `<button onclick="answerQuiz(${qIdx}, ${optIdx})" class="py-1.5 px-2 rounded-xl border text-center transition ${btnStyle}">${opt}</button>`;
+                            }).join('')}
+                        </div>
+                    </div>
+                `).join('');
+
+                const answeredCount = Object.keys(quizState).length;
+                const correctCount = Object.keys(quizState).filter(idx => quizState[idx] === slides[currentSlide].questions[idx].answer).length;
+
+                innerHtml = `
+                    <div class="flex flex-col justify-between h-full">
+                        <div>
+                            <div class="text-center my-1">
+                                <span class="text-3xl">🎓</span>
+                                <h2 class="text-xl sm:text-2xl font-black text-gray-900 mt-1">${slide.title}</h2>
+                                <p class="text-gray-500 text-xs mt-0.5 font-medium">${slide.subtitle}</p>
+                            </div>
+
+                            <div class="space-y-2.5 my-3">
+                                ${quizHtml}
+                            </div>
+                        </div>
+
+                        <div class="bg-violet-50 border border-violet-100 rounded-2xl p-3 text-center">
+                            ${answeredCount === slides[currentSlide].questions.length ? 
+                                `<p class="text-violet-900 font-bold text-sm">최종 점수: ${correctCount} / ${slides[currentSlide].questions.length} 문제 정답! ${correctCount === 3 ? '🎉 완벽합니다!' : '👍 수고하셨습니다!'}</p>` : 
+                                `<p class="text-violet-900 font-bold text-xs">문제를 터치하여 정답을 확인해보세요!</p>`}
+                            <p class="text-violet-700 text-[11px] mt-0.5">자주 복습하여 'GO' 표현을 완전히 내 것으로 만들어보세요!</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            cardContent.innerHTML = innerHtml;
+
+            setTimeout(() => {
+                cardContent.className = "p-6 sm:p-7 flex-1 flex flex-col justify-between slide-enter-active";
+            }, 10);
+        }
+
+        // Answer quiz handler
+        function answerQuiz(qIdx, optIdx) {
+            quizState[qIdx] = optIdx;
+            const currentQ = slides[currentSlide].questions[qIdx];
+            if (currentQ.answer === optIdx) {
+                showToast("정답입니다! 👏");
+            } else {
+                showToast("아쉽네요! 다시 시도해보세요.");
+            }
+            renderSlide();
+        }
+
+        // Helper to highlight "go / goes / went / going / gone"
+        function highlightTarget(sentence) {
+            return sentence.replace(/\b(goes|went|going|gone|go)\b/gi, (match) => {
+                return `<span class="text-violet-600 font-black underline decoration-violet-300 underline-offset-2">${match}</span>`;
+            });
+        }
+
+        // Helper to escape single quotes
+        function escapeQuotes(str) {
+            return str.replace(/'/g, "\\'");
+        }
+
+        // Slide Navigation
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                renderSlide();
+            } else {
+                currentSlide = 0;
+                renderSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                renderSlide();
+            }
+        }
+
+        // Text-to-Speech Pronunciation
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.88;
+                window.speechSynthesis.speak(utterance);
+                showToast("🔊 영어 발음 재생 중...");
+            } else {
+                showToast("브라우저가 음성 출력을 지원하지 않습니다.");
+            }
+        }
+
+        // Copy Sentence to Clipboard
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast("📋 문장이 클립보드에 복사되었습니다!");
+            } catch (err) {
+                showToast("복사 실패");
+            }
+            document.body.removeChild(textarea);
+        }
+
+        // Toast Message
+        function showToast(message) {
+            const existingToast = document.getElementById('custom-toast');
+            if (existingToast) existingToast.remove();
+
+            const toast = document.createElement('div');
+            toast.id = 'custom-toast';
+            toast.className = 'fixed bottom-7 left-1/2 transform -translate-x-1/2 bg-gray-900/90 text-white text-xs font-medium px-4 py-2.5 rounded-xl shadow-2xl z-50 backdrop-blur-sm border border-white/10 transition-all opacity-0';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => toast.classList.remove('opacity-0'), 20);
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                setTimeout(() => toast.remove(), 250);
+            }, 2000);
+        }
+
+        // Keyboard Arrow Key Support
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+
+        // Initialize Application
+        window.onload = function() {
+            renderSlide();
+        };
+    </script>
+</body>
+</html>
